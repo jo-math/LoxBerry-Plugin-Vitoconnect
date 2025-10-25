@@ -3,6 +3,11 @@ include_once "loxberry_system.php";
 require_once "loxberry_log.php";
 require_once "defines.php";
 require_once __DIR__."/phpMQTT/phpMQTT.php";
+
+
+function fancyLogging($level, $message) {
+    LOGDEB( "LOGLEVEL: ". $level . " MESSAGE:" . $message);
+}
 function publishInstallationDetailToLox( $data, $configuration ){
     $result = false;
     foreach ($data as $key => $val) {
@@ -41,13 +46,13 @@ function mqtt_publish_local ( $keysandvalues, $configuration ) {
     $broker[1] = !empty($broker[1]) ? $broker[1]  : 1883;
 
     $client_id = uniqid(gethostname()."_vitoconnect");
-    $mqtt = new Bluerhinos\phpMQTT($broker[0],  $broker[1], $client_id);
+    $mqtt = new Bluerhinos\phpMQTT($broker[0],  $broker[1], $client_id,null, "fancyLogging");
     if( $mqtt->connect(true, NULL, $configuration->mqttBrokerUser, $configuration->mqttBrokerPassword) ) {
         foreach ($keysandvalues as $key => $value) {
             //$keysplit=explode("_", $key, 2);
             $key=str_replace(".","/",$key);
             LOGDEB("MQTT publishing " . $configuration->mqttTopic . "/".$key.": $value...");
-            $mqtt->publish($configuration->mqttTopic  . "/". $key, $value, 1, 1);
+            $mqtt->publish($configuration->mqttTopic  . "/". $key, $value, 0, 0);
         }
         $mqtt->close();
         return true;

@@ -2,7 +2,17 @@
 
 require_once "loxberry_web.php";
 require_once "defines.php";
+require_once "loxberry_log.php";
+$log = LBLog::newLog( [ "name" => "UI log", "stderr" => 1, "stdout" => 1 ] );
+LOGSTART("Start UI Logging Logging");
+function shutdown()
+{
+    global $log;
 
+    if(isset($log)) {
+        LOGEND("Processing finished");
+    }
+}
 $navbar[1]['active'] = True;
 $navbar[2]['active'] = null;
 $navbar[3]['active'] = null;
@@ -111,6 +121,26 @@ LBWeb::lbheader($template_title, $helplink, $helptemplate);
 	<input name="MQTT.pass" id="MQTT.pass" type="password">
 	<p class="hint">This is the password of your <i>MQTT broker</i>. Leave this empty, if your settings from the MQTT Gateway plugin should be used, or you have enabled anonymous access.</p>
 </div>
+
+    <!-- MQTT command polling -->
+<fieldset data-role="controlgroup">
+        <input type="checkbox" name="MQTT.commands.enabled" id="MQTT.commands.enabled" class="mqtthidden">
+        <label for="MQTT.commands.enabled">Enable to allow commands via MQTT </label>
+</fieldset>
+    <div data-role="fieldcontain" style="display:none" class="mqtthidden">
+        <label for="MQTT.commands.pollInterval">Interval</label>
+        <select name="MQTT.commands.pollInterval" id="MQTT.commands.pollInterval">
+            <option value="01">1 minute</option>
+            <option value="02">2 minutes</option>
+            <option value="03">3 minutes</option>
+            <option value="05">5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="15">15 minutes</option>
+            <option value="30">30 minutes</option>
+            <option value="hourly">60 minutes</option>
+        </select>
+        <p class="hint">Select the time interval how often commands are polled</span>.</p>
+    </div>
 
 
 <!-- Loxone HTTP --> 
@@ -257,10 +287,15 @@ function formFill()
 	
 	if( typeof config.MQTT !== 'undefined') {
 		if (typeof config.MQTT.enabled !== 'undefined') $("#MQTT\\.enabled").prop('checked', config.MQTT.enabled).checkboxradio('refresh');
+
 		if (typeof config.MQTT.topic !== 'undefined') $("#MQTT\\.topic").val( config.MQTT.topic );
 		if (typeof config.MQTT.host !== 'undefined') $("#MQTT\\.host").val( config.MQTT.host );
 		if (typeof config.MQTT.user !== 'undefined') $("#MQTT\\.user").val( config.MQTT.user );
-		if (typeof config.MQTT.pass !== 'undefined') $("#MQTT\\.pass").val( config.MQTT.pass );		
+		if (typeof config.MQTT.pass !== 'undefined') $("#MQTT\\.pass").val( config.MQTT.pass );
+        if( typeof config.MQTT.commands !== 'undefined') {
+            if (typeof config.MQTT.commands.enabled !== 'undefined') $("#MQTT\\.commands\\.enabled").prop('checked', config.MQTT.commands.enabled).checkboxradio('refresh');
+            if (typeof config.MQTT.commands.pollInterval !== 'undefined') $("#MQTT\\.commands\\.pollInterval").val(config.MQTT.commands.pollInterval).selectmenu("refresh", true);
+        }
 	}
 	
 	if( typeof config.Loxone !== 'undefined') {

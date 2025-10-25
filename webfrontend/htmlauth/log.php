@@ -18,7 +18,7 @@ $navbar[2]['active'] = null;
 $navbar[3]['active'] = True;
 
 //LOGFILES
-echo '<p class="wide">'. $L['LOGFILES.HEAD']. '</p>';
+echo '<p class="wide"></p>';
 
 if ($handle = opendir($lbplogdir)) {
     while (false !== ($entry = readdir($handle))) {

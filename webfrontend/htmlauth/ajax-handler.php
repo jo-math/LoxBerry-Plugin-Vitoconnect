@@ -2,8 +2,41 @@
 
 require_once "loxberry_system.php";
 require_once "defines.php";
+require_once "cronCreator.php";
+
+$log = LBLog::newLog( [ "name" => "Ajax log", "stderr" => 1, "stdout" => 1 ] );
+LOGSTART("Start Ajax log");
+function shutdown()
+{
+	global $log;
+
+	if(isset($log)) {
+		LOGEND("Processing finished");
+	}
+}
 
 if( $_GET["action"] == "saveconfig" ) {
+	saveconfig();
+}
+if ( $_GET["action"] == "getsummary" ) {
+	getsummary();
+}
+
+if( $_GET["action"] == "updatecron" ) {
+	saveconfig();
+}
+sendresponse ( 501, "application/json",  '{ "error" : "No supported action given." }' );
+exit(1);
+
+function getsummary() {
+	shell_exec("php $lbphtmlauthdir/vitoconnect.php action=summary");
+	if ( ! file_exists(INSTALLDATA) ) {
+		sendresponse ( 500, "application/json", '{ "error" : "Could not query summary" }' );
+	}
+	sendresponse ( 200, "application/json", file_get_contents( INSTALLDATA ) );
+}
+
+function saveconfig() {
 	$data = array();
 	foreach( $_POST as $key => $value ) {
 		// PHP's $_POST converts dots of post variables to underscores
@@ -12,54 +45,18 @@ if( $_GET["action"] == "saveconfig" ) {
 	$jsonstr = json_encode($data, JSON_PRETTY_PRINT);
 	if($jsonstr) {
 		if ( file_put_contents( CONFIGFILE, $jsonstr ) == false ) {
+			LOGERR("unable to safe config file " . CONFIGFILE);
 			sendresponse( 500, "application/json", '{ "error" : "Could not write config file" }' );
 		} else {
-			
-			//unlink all old cronjobs
-			if (file_exists(LBHOMEDIR."/system/cron/cron.01min/".LBPPLUGINDIR))
-			{
-				unlink(LBHOMEDIR."/system/cron/cron.01min/".LBPPLUGINDIR);
+			LOGINF("Successfully written configuration: " . CONFIGFILE);
+			$isSummaryActive = isset($data["Cron"]["enabled"]) && $data["Cron"]["enabled"];
+			$summaryInterval = 1;
+			if ($isSummaryActive) {
+				$summaryInterval = $data["Cron"]["interval"];
 			}
-			if (file_exists(LBHOMEDIR."/system/cron/cron.03min/".LBPPLUGINDIR))
-			{
-				unlink(LBHOMEDIR."/system/cron/cron.03min/".LBPPLUGINDIR);
-			}
-			if (file_exists(LBHOMEDIR."/system/cron/cron.05min/".LBPPLUGINDIR))
-			{
-				unlink(LBHOMEDIR."/system/cron/cron.05min/".LBPPLUGINDIR);
-			}
-			if (file_exists(LBHOMEDIR."/system/cron/cron.10min/".LBPPLUGINDIR))
-			{
-				unlink(LBHOMEDIR."/system/cron/cron.10min/".LBPPLUGINDIR);
-			}
-			if (file_exists(LBHOMEDIR."/system/cron/cron.15min/".LBPPLUGINDIR))
-			{
-				unlink(LBHOMEDIR."/system/cron/cron.15min/".LBPPLUGINDIR);
-			}
-			if (file_exists(LBHOMEDIR."/system/cron/cron.30min/".LBPPLUGINDIR))
-			{
-				unlink(LBHOMEDIR."/system/cron/cron.30min/".LBPPLUGINDIR);
-			}
-			if (file_exists(LBHOMEDIR."/system/cron/cron.hourly/".LBPPLUGINDIR))
-			{
-				unlink(LBHOMEDIR."/system/cron/cron.hourly/".LBPPLUGINDIR);
-			}			
-			if  (isset($data["Cron"]["enabled"])){
-				if ($data["Cron"]["enabled"] == "on"){
-					
-					$croninterval= $data["Cron"]["interval"];
-					$cronpath = LBHOMEDIR."/system/cron/cron.".$croninterval."/".LBPPLUGINDIR;
-					// We create a cronjob that updates the status in the background
-					$cronentrystr = 
-						"#!/bin/bash".PHP_EOL.
-						"cd ".LBPHTMLAUTHDIR.PHP_EOL.
-						"php ".LBPHTMLAUTHDIR."/vitoconnect.php action=summary".PHP_EOL;
-					if (!file_put_contents($cronpath, $cronentrystr)) {
-						sendresponse( 500, "application/json", '{ "error" : "creation of CRON jobs failed" }' );
-					}
-					chmod($cronpath, 0755); 
-				}
-			}
+			$summaryConfig = new CronConfig($summaryInterval,"summary",$isSummaryActive);
+			LOGINF("Applying new cron configuration $summaryConfig");
+			$summaryConfig->updateCronConfig(true);
 			sendresponse ( 200, "application/json", file_get_contents(CONFIGFILE) );
 		}
 	} else {
@@ -68,16 +65,6 @@ if( $_GET["action"] == "saveconfig" ) {
 	exit(1);
 }
 
-if ( $_GET["action"] == "getsummary" ) {
-	shell_exec("php $lbphtmlauthdir/vitoconnect.php action=summary");
-	if ( ! file_exists(INSTALLDATA) ) {
-		sendresponse ( 500, "application/json", '{ "error" : "Could not query summary" }' );
-	}
-	sendresponse ( 200, "application/json", file_get_contents( INSTALLDATA ) );
-}
-
-sendresponse ( 501, "application/json",  '{ "error" : "No supported action given." }' );
-exit(1);
 
 function generateNew($array, $keys, $currentIndex, $value)
     {
@@ -97,12 +84,6 @@ function generateNew($array, $keys, $currentIndex, $value)
 
         return $array;
     }
-
-
-
-
-
-
 
 
 function sendresponse( $httpstatus, $contenttype, $response = null )

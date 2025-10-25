@@ -97,6 +97,19 @@ abstract class Enum
         return false;
     }
 
+    public static function fromStringValue($name)
+    {
+        $constants = self::getConstants();
+        if (self::isValidValue($name, $strict = true)) {
+            foreach ($constants as $key => $value) {
+                if ($name == $value) {
+                    return $constants[$key];
+                }
+            }
+        }
+
+        return false;
+    }
     public static function toString($value)
     {
         if (self::isValidValue($value, $strict = true)) {

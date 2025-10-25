@@ -35,11 +35,11 @@
 	elseif	($p[1] == 'system' && $p[2] == 'daemons' && $p[3] == 'plugins' && isset($p[4]) ) { $pluginname = $p[4]; }
 
 	// error_log("Determined plugin name is $pluginname");
-	
+	$pluginname = "Vitoconnect2";
 	if (isset($pluginname)) {
-		define ("LBPPLUGINDIR", $pluginname);
+
 		unset($pluginname);
-		
+        define ("LBPPLUGINDIR", "Vitoconnect2");
 		// Plugin Constants
 		define ("LBPHTMLAUTHDIR", LBHOMEDIR . "/webfrontend/htmlauth/plugins/" . LBPPLUGINDIR);
 		define ("LBPHTMLDIR", LBHOMEDIR . "/webfrontend/html/plugins/" . LBPPLUGINDIR);
@@ -77,6 +77,7 @@
 	define ("LBSSBINDIR", LBHOMEDIR . "/sbin");
 	define ("LBSBINDIR", LBHOMEDIR . "/bin");
 
+
 	# As globals in PHP cannot be concentrated in strings, we additionally define variables
 	
 	$lbshtmlauthdir = LBSHTMLAUTHDIR;
@@ -88,7 +89,7 @@
 	$lbsconfigdir = LBSCONFIGDIR;
 	$lbssbindir = LBSSBINDIR;
 	$lbsbindir = LBSBINDIR;
-
+    $lbpplugindir = LBPPLUGINDIR;
 	# Variables to store
 
 	$cfg=NULL;

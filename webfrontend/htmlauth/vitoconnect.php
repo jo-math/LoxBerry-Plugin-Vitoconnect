@@ -44,7 +44,7 @@ function shutdown()
 		LOGEND("Processing finished");
 	}
 }
-$log = LBLog::newLog( [ "name" => "Vitoconnect", "stderr" => 1 ] );
+$log = LBLog::newLog( [ "name" => "Cron Vitoconnect", "stderr" => 1 ] );
 //$log = LBLog::newLog( ["package"=>"Vitoconnect", "loglevel" => "1", "name" => "Vitoconnect", "stderr" => 1, "nofile" =>1 ] );
 LOGSTART("Start Logging");
 

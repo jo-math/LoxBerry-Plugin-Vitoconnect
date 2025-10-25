@@ -13,12 +13,17 @@ function setGlobalsBootstrap() {
     global $lbconfigdir;
     global $lbplogdir;
     global $lbpconfigdir;
+    global $lbpplugindir;
+    $lbpplugindir = "Vitoconnect2";
+    define ("LBPPLUGINDIR", $lbpplugindir);
+    define("LBPHTMLAUTHDIR", "/opt/loxberry/webfrontend/htmlauth/plugins/Vitoconnect2");
     $lbhomedir = __DIR__ . "/lbhomedir";
     $lbconfigdir = __DIR__ . "/lbhomedir/config";
     $lbsdatadir = __DIR__ . "/lbhomedir/data";
-    $lbpplugindir = __DIR__ . "/lbhomedir/plugin";
+
     $lbplogdir = __DIR__ . "/lbhomedir/log";
-    $lbpconfigdir = $lbpplugindir . "/config";
+    $lbpconfigdir = $lbhomedir . "/config/plugins/" . LBPPLUGINDIR;
     putenv("LBHOMEDIR=$lbhomedir");
-    define ("LBPPLUGINDIR", $lbpplugindir);
+    putenv("LBPPLUGINDIR=$lbpplugindir");
+
 }

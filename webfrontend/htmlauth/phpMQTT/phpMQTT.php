@@ -441,6 +441,7 @@ class phpMQTT
      */
     public function publish($topic, $content, $qos = 0, $retain = false): void
     {
+        $this->_log(LOGLEVEL_DEBUG, "Trying to publish $qos to $topic ");
         $i = 0;
         $buffer = '';
 
@@ -471,7 +472,7 @@ class phpMQTT
 
         fwrite($this->socket, $head, strlen($head));
         $this->_fwrite($buffer);
-        LOGDEB("Written message with qos $qos to $topic ");
+        $this->_log(LOGLEVEL_DEBUG, "Written message with qos $qos to $topic ");
     }
 
     /**
