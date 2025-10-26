@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-release_version="1.0.5"
+release_version="1.0.6"
 set -euo pipefail
 rm -R ./dist || true
 mkdir -p ./dist/input

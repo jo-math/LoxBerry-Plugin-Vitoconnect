@@ -176,7 +176,12 @@ class InstallationData {
                         break;
 
                     case "array":
-                        $Value= join(",",$value->value);
+                        $arrayValue = (array) $value->value;
+                        if (count($arrayValue) > 0 && $arrayValue[0] instanceof stdClass) {
+                            $Value= "";
+                        } else {
+                            $Value= join(",",$arrayValue);
+                        }
                         break;
 
                     case "boolean":

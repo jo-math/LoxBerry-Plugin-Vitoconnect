@@ -5,13 +5,11 @@
 use PHPUnit\Framework\TestCase;
 $testparams = "foo";
 setGlobals();
-$argv=["action=setvalue","option=heating.circuits.0.operating.programs.reduced","value=17"];
+//$argv=["action=setvalue","option=heating.circuits.0.operating.programs.reduced","value=17"];
+$argv=["action=summary"];
 require_once "vitoconnect.php";
 
 
-function fancyLogging($level, $message) {
-    echo "LOGLEVEL: ". $level . " MESSAGE:<" . $message . ">\n";
-}
 class phpMQTTTest2 extends TestCase
 {
     public function testCall() {
