@@ -8,7 +8,7 @@ require_once "vitoConnectLogin.php";
 
 
 function readPluginConfig() {
-    $pluginConfigRaw = file_get_contents("lbhomedir/plugin/config/config.json");
+    $pluginConfigRaw = file_get_contents("lbhomedir/config/plugins/Vitoconnect2/config.json");
     $pluginConfig = json_decode($pluginConfigRaw);
 
     return $pluginConfig;
